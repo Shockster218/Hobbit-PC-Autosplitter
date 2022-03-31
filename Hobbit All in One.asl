@@ -42,9 +42,11 @@ startup
 	vars.levelStartID = -1;
 
 	vars.crashed = false;
-	vars.ilsegMB = false;
+	vars.ilsegmentNotCheckedMB = false;
+	vars.noStartLevelMB = false;
 	vars.reset = true;
 	vars.started = false;
+	vars.mainMenuReached = false;
 
 	vars.resetAction = (Action)(() => 
 	{ 
@@ -55,8 +57,9 @@ startup
 
 	vars.splitAction = (Action)(() => 
 	{
-		if(vars.timerState == 0 && settings["race"] == true) vars.levelSplitID = 1;
-		else vars.levelSplitID = vars.levelStartID; 
+		if(vars.timerState == 0 && settings["race"]) vars.levelSplitID = 1;
+		else vars.levelSplitID = vars.levelStartID;
+		vars.noStartLevelMB = false; 
 		vars.reset = false; 
 		vars.started = true; 
 	});
@@ -79,9 +82,9 @@ init
 
 	if(settings["ilseg"]) return true;
 		
-	if(!vars.ilsegMB)
+	if(!vars.ilsegmentNotCheckedMB)
 	{
-		vars.ilsegMB = true;
+		vars.ilsegmentNotCheckedMB = true;
 		MessageBox.Show("Enable ILs or Segment Practice option in settings to use this feature!", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 		return false;
 	}
@@ -89,22 +92,24 @@ init
 
 update
 {
+	if(current.oolState == 6 && !vars.mainMenuReached) vars.mainMenuReached = true;
 	if (timer.Run.Count >= 12) vars.timerState = 0;
 	else vars.timerState = 1;
 	if(vars.timerState == 1)
-	{
+	{	
 		if(settings["tcb"]) vars.levelStartID = 11;
-		if(settings["gotc"]) vars.levelStartID = 10;
-		if(settings["ii"]) vars.levelStartID = 9;
-		if(settings["aww"]) vars.levelStartID = 8;
-		if(settings["boob"]) vars.levelStartID = 7;
-		if(settings["fas"]) vars.levelStartID = 6;
-		if(settings["ritd"]) vars.levelStartID = 5;
-		if(settings["oh"]) vars.levelStartID = 4;
-		if(settings["th"]) vars.levelStartID = 3;
-		if(settings["rm"]) vars.levelStartID = 2;
-		if(settings["aup"]) vars.levelStartID = 1;
-		if(settings["dw"]) vars.levelStartID = 0;	
+		else if(settings["gotc"]) vars.levelStartID = 10;
+		else if(settings["ii"]) vars.levelStartID = 9;
+		else if(settings["aww"]) vars.levelStartID = 8;
+		else if(settings["boob"]) vars.levelStartID = 7;
+		else if(settings["fas"]) vars.levelStartID = 6;
+		else if(settings["ritd"]) vars.levelStartID = 5;
+		else if(settings["oh"]) vars.levelStartID = 4;
+		else if(settings["th"]) vars.levelStartID = 3;
+		else if(settings["rm"]) vars.levelStartID = 2;
+		else if(settings["aup"]) vars.levelStartID = 1;
+		else if(settings["dw"]) vars.levelStartID = 0;
+		else vars.levelStartID = -1;
 	}
 	else vars.levelStartID = -1;
 }
@@ -120,10 +125,23 @@ start
 	{
 		if(settings["ilseg"])
 		{
-			if(timer.CurrentPhase == TimerPhase.NotRunning && current.levelID == vars.levelStartID)
+			if(timer.CurrentPhase == TimerPhase.NotRunning && vars.mainMenuReached)
 			{
-				if(vars.levelStartID == 0 && current.oolState != 19) return true;
-				if(vars.levelStartID == current.levelID && current.oolState == 19)	return true;
+				if(current.levelID == vars.levelStartID)
+				{
+					if(vars.levelStartID == 0 && current.oolState != 19) return true;
+					if(vars.levelStartID == current.levelID && current.oolState == 19)	return true;
+				}
+				if(vars.levelStartID == -1)
+				{
+					if(!vars.noStartLevelMB)
+					{
+						System.Threading.Thread.Sleep(1000);
+						vars.noStartLevelMB = true;
+						MessageBox.Show("Please select starting level for IL or Segment timing!", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+					}
+					return false;	
+				}
 			}
 		}
 	}
@@ -149,7 +167,7 @@ reset
 		if(current.levelID > vars.levelStartID + timer.Run.Count) return true;
 	}
 
-	if (current.levelID == -1 && !current.menuClosed && vars.levelSplitID != -1) return true;
+	if (current.levelID == -1) return true;
 }
 
 isLoading
@@ -161,7 +179,9 @@ exit
 {
 	//All quests AWW crash
 	if(vars.levelSplitID == 8 && timer.CurrentPhase == TimerPhase.Running) vars.crashed = true;
-	vars.ilsegMB = false;
+	vars.ilsegmentNotCheckedMB = false;
+	vars.noStartLevelMB = false;
+	vars.mainMenuReached = false;
 	timer.OnReset -= vars.resetEventHandler;
 	timer.OnSplit -= vars.splitEventHandler;
 }
