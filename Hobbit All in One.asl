@@ -8,6 +8,7 @@ state("meridian")
 	bool onCutscene : 0x35CCE4;
 	int cutsceneID : 0x35CD00; 
 	bool loadScreen : 0x35F8C8;
+	int levelQueued : 0x3631EC;
 	int oolState : 0x362B58;
 	int levelID : 0x362B5C;
 	bool menuClosed : 0x413040;
@@ -47,7 +48,10 @@ startup
 	vars.reset = true;
 	vars.started = false;
 	vars.mainMenuReached = false;
+}
 
+init
+{
 	vars.resetAction = (Action)(() => 
 	{ 
 		vars.levelSplitID = vars.levelStartID; 
@@ -55,24 +59,25 @@ startup
 		vars.started = false;
 	});
 
-	vars.splitAction = (Action)(() => 
-	{
-		if(vars.timerState == 0 && settings["race"]) vars.levelSplitID = 1;
+	vars.startAction = (Action)(() => 
+	{	
+		if(vars.timerState == 0)
+		{
+			if(settings["race"]) vars.levelSplitID = 1;
+			else vars.levelSplitID = 0;
+		} 
 		else vars.levelSplitID = vars.levelStartID;
 		vars.noStartLevelMB = false; 
 		vars.reset = false; 
-		vars.started = true; 
+		vars.started = true;
 	});
 
 	vars.resetEventHandler = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>)((s, e) => vars.resetAction());
-	vars.splitEventHandler = (EventHandler)((s, e) => vars.splitAction());
+	vars.startEventHandler = (EventHandler)((s, e) => vars.startAction());
 
 	timer.OnReset += vars.resetEventHandler;
-	timer.OnStart += vars.splitEventHandler;
-}
+	timer.OnStart += vars.startEventHandler;
 
-init
-{
 	if(vars.crashed) System.Threading.Tasks.Task.Factory.StartNew(() => { 
 			while(vars.crashed)
 			{
@@ -149,12 +154,28 @@ start
 
 split
 {
+	if(!vars.started) return false;
+	if(vars.timerState == 0)
+	{
+		if (current.oolState == 19 && (current.levelID - vars.levelSplitID) > 0)
+    	{
+    	    vars.levelSplitID += 1;
+    	    return true;
+    	}
+    	if (current.levelID == 11 && current.onCutscene == true && current.cutsceneID == 0x3853B400)
+    	{
+    	    vars.levelSplitID = -1;   
+    	    return true;
+		}
+	}
 }
 
 reset
 {
 	if(vars.crashed) return false;
+	if(!vars.mainMenuReached && timer.CurrentPhase == TimerPhase.Running) return true;
 	if(vars.reset) return false;
+	if(current.levelQueued != -1) return true;
 	if(vars.timerState == 1)
 	{
 		if(current.levelID == vars.levelStartID)
@@ -167,7 +188,7 @@ reset
 		if(current.levelID > vars.levelStartID + timer.Run.Count) return true;
 	}
 
-	if (current.levelID == -1) return true;
+	if (current.levelID == -1 && current.oolState == 6) return true;
 }
 
 isLoading
@@ -183,12 +204,12 @@ exit
 	vars.noStartLevelMB = false;
 	vars.mainMenuReached = false;
 	timer.OnReset -= vars.resetEventHandler;
-	timer.OnSplit -= vars.splitEventHandler;
+	timer.OnStart -= vars.startEventHandler;
 }
 
 shutdown
 {
 	timer.OnReset -= vars.resetEventHandler;
-	timer.OnSplit -= vars.splitEventHandler;
+	timer.OnStart -= vars.startEventHandler;
 }
 	
