@@ -7,6 +7,7 @@ state("meridian")
 {
 	// Not sure what runLevel is exactly, but needed for kill bilbo (need to ask md_pi)
 	bool runLevel : 0x360354;
+	bool onCinema : 0x35CCE4;
 	float health : 0x35BDBC;
 	bool onCutscene : 0x35CCE4;
 	int cutsceneID : 0x35CD00; 
