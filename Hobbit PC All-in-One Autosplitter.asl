@@ -76,7 +76,7 @@ startup
 	vars.levelSplitID = -1;
 	vars.levelStartID = -1;
 
-	vars.awwCrash = false;
+	vars.crashed = false;
 	vars.noStartLevelMB = false;
 	vars.mainMenuReached = false;
 }
@@ -118,10 +118,10 @@ init
 	Set AWW crash to true to disable resetting function when back in game
 	Very Useful for categories like AQ where save jump is present.
 */
-	if(vars.awwCrash) System.Threading.Tasks.Task.Factory.StartNew(() => { 
-		while(vars.awwCrash)
+	if(vars.crashed) System.Threading.Tasks.Task.Factory.StartNew(() => { 
+		while(vars.crashed)
 		{
-			if(current.levelID > -1 && vars.mainMenuReached) vars.awwCrash = false;
+			if(vars.mainMenuReached && current.oolState == 19 || current.oolState == 17) vars.crashed = false;
 		}
 	});
 }
@@ -238,8 +238,8 @@ split
 
 reset
 {
-	// Don't reset if we crashed in AWW during All quests (and hundo?)
-	if(vars.awwCrash) return false;
+	// Don't reset if we crashed
+	if(vars.crashed) return false;
 
 	// Otherwise if we didn't crash during that, reset the timer on game start. Still resets for crash%(since no split happens anyway), might change.
 	if(!vars.mainMenuReached && timer.CurrentPhase == TimerPhase.Running) return true;
@@ -284,7 +284,7 @@ isLoading
 exit
 {
 	// All quests AWW crash check.
-	if(vars.levelSplitID == 8 && settings["aq100"]) vars.awwCrash = true;
+	vars.crashed = true;
 
 	// Crash% display time as checkbox since split action doesn't run after the game has crashed. Most likely inaccurate, but better than nothing I guess?
 	if(vars.timerState == 2 && settings["crash%"] && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show("Crash% Time Recorded at " + ((TimeSpan)timer.CurrentTime.GameTime).ToString(@"mm\:ss\.fff") + "\nMay not be accurate due to limitations.", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
