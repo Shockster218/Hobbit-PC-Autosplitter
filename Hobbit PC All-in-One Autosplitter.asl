@@ -29,9 +29,12 @@ startup
 		2. All Quests / 100%
 		3. Glitchess / Category Extensions
 */
-	settings.Add("runsHeader", false, "               -------- Run Settings --------");
+	settings.Add("runsHeader", false, "                         ------------- Run Settings -------------");
+	settings.Add("runsDesc1", false, " Run settings are in hierarchical order, with \"Full Game Runs\" taking");
+	settings.Add("runsDesc2", false, " priority, \nfollowed by \"ILs or Segments Practice\", then \"Any% Runs\"");
+	settings.Add("runsFooter", false, "                         -------------------------------------------------");
 	settings.Add("fullgame", true, " Full Game Runs");
-	settings.SetToolTip("fullgame", "If checked, takes precedence over Any% and ILs/Segment Runs.");
+	settings.SetToolTip("fullgame", "If checked, takes precedence over ILs or Segment Practice and Any% Runs.");
 	settings.Add("nmg", true, " No Major Glitches", "fullgame");
 	settings.Add("aq100", false, " All Quests or 100%", "fullgame");
 	settings.Add("other", false, " Other Full Game Run", "fullgame");
@@ -39,22 +42,11 @@ startup
 	settings.Add("race", false, " Race Mode", "nmg");
 
 /*
-	2. Any Percent Runs
-		1. Major Glitches
-		2. Kill Bilbo
-		3. Crash% - Any Type
-*/
-	settings.Add("any%", false, " Any Percent Runs");
-	settings.SetToolTip("any%", "If checked, takes precedence over IL/Segment Runs but not Full Game Runs.");
-	settings.Add("mg", false, " Major Glitches", "any%");
-	settings.SetToolTip("mg", " Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!");
-	settings.Add("killbilbo", false, " Kill Bilbo", "any%");
-	settings.Add("crash%", false, " Crash%", "any%");
-/*
-	3. IL or Segmented Practice
+	2. IL or Segmented Practice
 */
 	settings.Add("ilseg", false, "ILs or Segment Practice");
-	settings.SetToolTip("ilseg", "Lowest priority out of the main categories.\nChoose Starting Level Only! If multiple checked, priority is first level as appears in order below.");
+	settings.SetToolTip("ilseg", "If checked, takes precedence over Any% Runs but not Full Game Runs.\nChoose Starting Level Only! If multiple checked, priority is first level as appears in order below.");
+	settings.Add("ildesc", false, "Choose Starting Level Only! If multiple checked, priority is first level as appears in order below.", "ilseg");
 	settings.Add("dw", false, " Dream World", "ilseg");
 	settings.Add("aup", false, " An Unexpected Party", "ilseg");
 	settings.Add("rm", false, " Roast Mutton", "ilseg");
@@ -68,9 +60,23 @@ startup
 	settings.Add("gotc", false, " Gathering of the Clouds", "ilseg");
 	settings.Add("tcb", false, " The Clouds Burst", "ilseg");
 
-	settings.Add("extraHeader", false, "               -------- Extra Settings --------");
+/*
+	3. Any Percent Runs
+		1. Major Glitches
+		2. Kill Bilbo
+		3. Crash% - Any Type
+*/
+	settings.Add("any%", false, " Any Percent Runs");
+	settings.SetToolTip("any%", "Lowest priority out of the main categories.");
+	settings.Add("mg", false, " Major Glitches", "any%");
+	settings.SetToolTip("mg", " Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!");
+	settings.Add("killbilbo", false, " Kill Bilbo", "any%");
+	settings.Add("crash%", false, " Crash%", "any%");
+
+	settings.Add("extraHeader", false, "                         -------- Extra Settings --------");
 	settings.Add("signs", true, " Automatically Reset Riddles in the Dark Minecart Signs");
 	settings.Add("resets", true, " Automatically Disable Resets When the Game Crashes");
+
 /*
 	Timer state for conditions based on what the preferred category is.
 	0 - Full Game Runs
