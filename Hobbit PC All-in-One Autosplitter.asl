@@ -8,6 +8,7 @@ state("meridian")
 	// Not sure what runLevel is exactly, but needed for kill bilbo (need to ask md_pi)
 	bool runLevel : 0x360354;
 	bool onCinema : 0x35CCE4;
+	int cinemaID : 0x35CD00;
 	float health : 0x35BDBC;
 	bool onCutscene : 0x35CCE4;
 	int cutsceneID : 0x35CD00; 
@@ -28,13 +29,14 @@ startup
 		2. All Quests / 100%
 		3. Glitchess / Category Extensions
 */
-	settings.Add("fullgame", true, "Full Game Runs");
+	settings.Add("runsHeader", false, "               -------- Run Settings --------");
+	settings.Add("fullgame", true, " Full Game Runs");
 	settings.SetToolTip("fullgame", "If checked, takes precedence over Any% and ILs/Segment Runs.");
-	settings.Add("nmg", true, "No Major Glitches", "fullgame");
-	settings.Add("aq100", false, "All Quests or 100%", "fullgame");
-	settings.Add("other", false, "Other Full Game Run", "fullgame");
-	settings.SetToolTip("other", "Glitchless, No Jump-Attacks, No Longjumps, etc.");
-	settings.Add("race", false, "Race Mode", "nmg");
+	settings.Add("nmg", true, " No Major Glitches", "fullgame");
+	settings.Add("aq100", false, " All Quests or 100%", "fullgame");
+	settings.Add("other", false, " Other Full Game Run", "fullgame");
+	settings.SetToolTip("other", " Glitchless, No Jump-Attacks, No Longjumps, etc.");
+	settings.Add("race", false, " Race Mode", "nmg");
 
 /*
 	2. Any Percent Runs
@@ -42,12 +44,12 @@ startup
 		2. Kill Bilbo
 		3. Crash% - Any Type
 */
-	settings.Add("any%", false, "Any Percent Runs");
+	settings.Add("any%", false, " Any Percent Runs");
 	settings.SetToolTip("any%", "If checked, takes precedence over IL/Segment Runs but not Full Game Runs.");
-	settings.Add("mg", false, "Major Glitches", "any%");
-	settings.SetToolTip("mg", "Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!");
-	settings.Add("killbilbo", false, "Kill Bilbo", "any%");
-	settings.Add("crash%", false, "Crash%", "any%");
+	settings.Add("mg", false, " Major Glitches", "any%");
+	settings.SetToolTip("mg", " Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!");
+	settings.Add("killbilbo", false, " Kill Bilbo", "any%");
+	settings.Add("crash%", false, " Crash%", "any%");
 /*
 	3. IL or Segmented Practice
 */
@@ -66,6 +68,9 @@ startup
 	settings.Add("gotc", false, " Gathering of the Clouds", "ilseg");
 	settings.Add("tcb", false, " The Clouds Burst", "ilseg");
 
+	settings.Add("extraHeader", false, "               -------- Extra Settings --------");
+	settings.Add("signs", true, " Automatically Reset Riddles in the Dark Minecart Signs");
+	settings.Add("resets", true, " Automatically Disable Resets When the Game Crashes");
 /*
 	Timer state for conditions based on what the preferred category is.
 	0 - Full Game Runs
@@ -87,7 +92,7 @@ init
 	// All common reset actions are done here to avoid redundancy
 	vars.resetAction = (Action)(() => 
 	{
-		if (vars.levelSplitID > 4)
+		if (vars.levelSplitID > 4 && settings["signs"])
 		{
 			// Set Switches back to normal. for 1.3 only
 			memory.WriteBytes((System.IntPtr)(0x75B548), new byte[] {0x01,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0,0,0,0,0});
@@ -122,7 +127,7 @@ init
 	if(vars.crashed) System.Threading.Tasks.Task.Factory.StartNew(() => { 
 		while(vars.crashed)
 		{
-			if(vars.mainMenuReached && current.oolState == 19 || current.oolState == 17) vars.crashed = false;
+			if(vars.mainMenuReached && current.levelID > -1) vars.crashed = false;
 		}
 	});
 }
@@ -285,7 +290,7 @@ isLoading
 exit
 {
 	// All quests AWW crash check.
-	vars.crashed = true;
+	if(settings["resets"]) vars.crashed = true;
 
 	// Crash% display time as checkbox since split action doesn't run after the game has crashed. Most likely inaccurate, but better than nothing I guess?
 	if(vars.timerState == 2 && settings["crash%"] && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show("Crash% Time Recorded at " + ((TimeSpan)timer.CurrentTime.GameTime).ToString(@"mm\:ss\.fff") + "\nMay not be accurate due to limitations.", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
