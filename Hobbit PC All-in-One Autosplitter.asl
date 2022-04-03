@@ -91,6 +91,17 @@ startup
 	vars.crashed = false;
 	vars.noStartLevelMB = false;
 	vars.mainMenuReached = false;
+	vars.messageBoxTitle = "The Hobbit PC | LiveSplit";
+
+	if(timer.CurrentTimingMethod == TimingMethod.RealTime){	
+		var timingMessage = MessageBox.Show(
+			"This game uses Game Time (time without loads) as the main timing method.\n"+
+			"LiveSplit is currently set to show Real Time (time INCLUDING loads).\n"+
+			"Would you like the timing method to be set to Game Time for you?",
+			vars.messageBoxTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly
+		);
+		if (timingMessage == DialogResult.Yes) timer.CurrentTimingMethod = TimingMethod.GameTime;
+	}
 }
 
 init
@@ -189,7 +200,10 @@ start
 		{
 			System.Threading.Thread.Sleep(1000);
 			vars.noStartLevelMB = true;
-			MessageBox.Show("Please select starting level for IL or Segment timing!", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+			MessageBox.Show(
+				"Please select starting level for IL or Segment timing!", 
+				vars.messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly
+			);
 			return false;
 		}
 	}
@@ -199,7 +213,9 @@ start
 		if (current.oolState == 17 && (old.oolState == 9 || old.oolState == 6) && current.menusOpen < 2) 
 		{
 			// If running menu glitches and not enough splits are present, give warning.
-			if(settings["mg"] && timer.Run.Count != 4) MessageBox.Show("Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+			if(settings["mg"] && timer.Run.Count != 4) MessageBox.Show(
+				"Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!", 
+				vars.messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 			return true;
 		}
 	}
@@ -299,7 +315,10 @@ exit
 	if(settings["resets"]) vars.crashed = true;
 
 	// Crash% display time as checkbox since split action doesn't run after the game has crashed. Most likely inaccurate, but better than nothing I guess?
-	if(vars.timerState == 2 && settings["crash%"] && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show("Crash% Time Recorded at " + ((TimeSpan)timer.CurrentTime.GameTime).ToString(@"mm\:ss\.fff") + "\nMay not be accurate due to limitations.", "Prompt", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+	if(vars.timerState == 2 && settings["crash%"] && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show(
+		"Crash% Time Recorded at " + ((TimeSpan)timer.CurrentTime.GameTime).ToString(@"mm\:ss\.fff") + 
+		"\nMay not be accurate due to limitations.", 
+		vars.messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 	
 	// Reset bools for when we lose process handle.
 	vars.noStartLevelMB = false;
