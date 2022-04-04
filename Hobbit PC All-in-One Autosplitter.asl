@@ -1,6 +1,9 @@
 /*
 	An Autosplitter for The Hobbit PC (2003) on patch 1.3
 	ASL originally made by MD_PI, revamped by Shockster_ as an all-in-one autosplitter!
+	Worked on by:
+		- Shockster_
+		- MD_PI
 */
 
 state("meridian")
@@ -23,30 +26,11 @@ startup
 {
 /*
 	Autosplitter Settings.
-	The settings hierarchy is as follows in order as they appear.
-	1. Full Game Runs
-		1. NMG
-		2. All Quests / 100%
-		3. Glitchess / Category Extensions
 */
-	settings.Add("runsHeader", false, "                         ------------- Run Settings -------------");
-	settings.Add("runsDesc1", false, " Run settings are in hierarchical order, with \"Full Game Runs\" taking");
-	settings.Add("runsDesc2", false, " priority, \nfollowed by \"ILs or Segments Practice\", then \"Any% Runs\"");
-	settings.Add("runsFooter", false, "                         -------------------------------------------------");
-	settings.Add("fullgame", true, " Full Game Runs");
-	settings.SetToolTip("fullgame", "If checked, takes precedence over ILs or Segment Practice and Any% Runs.");
-	settings.Add("nmg", true, " No Major Glitches", "fullgame");
-	settings.Add("aq100", false, " All Quests or 100%", "fullgame");
-	settings.Add("other", false, " Other Full Game Run", "fullgame");
-	settings.SetToolTip("other", " Glitchless, No Jump-Attacks, No Longjumps, etc.");
-	settings.Add("race", false, " Race Mode", "nmg");
-
-/*
-	2. IL or Segmented Practice
-*/
-	settings.Add("ilseg", false, "ILs or Segment Practice");
-	settings.SetToolTip("ilseg", "If checked, takes precedence over Any% Runs but not Full Game Runs.\nChoose Starting Level Only! If multiple checked, priority is first level as appears in order below.");
-	settings.Add("ildesc", false, "Choose Starting Level Only! If multiple checked, priority is first level as appears in order below.", "ilseg");
+	settings.Add("ilseg", false, " ILs or Segment Practice");
+	settings.SetToolTip("ilseg", " Choose Starting Level Only! If multiple checked, priority is first level as appears in order below.");
+	settings.Add("desc", false, " Choose Starting Level Only!", "ilseg");
+	settings.Add("desc2", false, " If multiple checked, priority is first level as appears in order below.", "ilseg");
 	settings.Add("dw", false, " Dream World", "ilseg");
 	settings.Add("aup", false, " An Unexpected Party", "ilseg");
 	settings.Add("rm", false, " Roast Mutton", "ilseg");
@@ -60,30 +44,11 @@ startup
 	settings.Add("gotc", false, " Gathering of the Clouds", "ilseg");
 	settings.Add("tcb", false, " The Clouds Burst", "ilseg");
 
-/*
-	3. Any Percent Runs
-		1. Major Glitches
-		2. Kill Bilbo
-		3. Crash% - Any Type
-*/
-	settings.Add("any%", false, " Any Percent Runs");
-	settings.SetToolTip("any%", "Lowest priority out of the main categories.");
-	settings.Add("mg", false, " Major Glitches", "any%");
-	settings.SetToolTip("mg", " Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!");
-	settings.Add("killbilbo", false, " Kill Bilbo", "any%");
-	settings.Add("crash%", false, " Crash%", "any%");
-
-	settings.Add("extraHeader", false, "                         -------- Extra Settings --------");
+	settings.Add("extraHeader", false, "                    ------------- Extra Settings -------------");
 	settings.Add("signs", true, " Automatically Reset Riddles in the Dark Minecart Signs");
 	settings.Add("resets", true, " Automatically Disable Resets When the Game Crashes");
+	settings.Add("race", false, " Race Mode timer fix for NMG (If using racetime.gg)");
 
-/*
-	Timer state for conditions based on what the preferred category is.
-	0 - Full Game Runs
-	1 - Segments or ILs
-	2 - Any Percent Runs
-*/
-	vars.timerState = 0;
 	refreshRate = 30;
 	vars.levelSplitID = -1;
 	vars.levelStartID = -1;
@@ -120,12 +85,12 @@ init
 	// All common start actions are done here to avoid redundancy
 	vars.startAction = (Action)(() => 
 	{	
-		if(vars.timerState == 0)
+		if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
+		else
 		{
 			if(settings["race"]) vars.levelSplitID = 1;
 			else vars.levelSplitID = 0;
-		} 
-		else vars.levelSplitID = vars.levelStartID;
+		}
 		vars.noStartLevelMB = false; 
 	});
 
@@ -152,14 +117,7 @@ init
 update
 {
 	if(current.oolState == 6 && !vars.mainMenuReached) vars.mainMenuReached = true;
-
-	// Default to full game runs if nothing checked.
-	if(settings["fullgame"]) vars.timerState = 0;
-	else if(settings["ilseg"]) vars.timerState = 1;
-	else if(settings["any%"]) vars.timerState = 2;
-	else vars.timerState = 0;
-
-	if(vars.timerState == 1)
+	if(settings["ilseg"])
 	{	
 		if(settings["tcb"]) vars.levelStartID = 11;
 		else if(settings["gotc"]) vars.levelStartID = 10;
@@ -184,7 +142,7 @@ start
 	if(timer.CurrentPhase != TimerPhase.NotRunning || !vars.mainMenuReached) return false;
 
 	// IL and Segment runs start conditions.
-	if(vars.timerState == 1)
+	if(settings["ilseg"])
 	{
 		// If we have a start level selected, get ready to start.
 		if(current.levelID == vars.levelStartID)
@@ -213,7 +171,7 @@ start
 		if (current.oolState == 17 && (old.oolState == 9 || old.oolState == 6) && current.menusOpen < 2) 
 		{
 			// If running menu glitches and not enough splits are present, give warning.
-			if(settings["mg"] && timer.Run.Count != 4) MessageBox.Show(
+			if(timer.Run.CategoryName == "Major Glitches" && timer.Run.Count != 4) MessageBox.Show(
 				"Please include splits for Dream World, OHaUH, AWW and Final split to work correctly!", 
 				vars.messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 			return true;
@@ -226,35 +184,29 @@ split
 	// If timer isn't running, we don't need to check split conditions.
 	if(timer.CurrentPhase != TimerPhase.Running) return false;
 
-	// Final split condition, except for any% runs since they don't end on the conventional barrel hit.
-	if(vars.timerState != 2)
-	{
-		// Split for TCB on full game runs or segments (that end on TCB) and TCB IL
-    	if (current.levelID > 10 && current.onCinema && current.cinemaID == 0x3853B400)
-    	{
-			if(vars.timerState == 0) vars.levelSplitID = -1; 
-			else vars.levelSplitID = vars.levelStartID;
-    	    return true;
-		}
-	}
-	else
-	{
-		// Only need different final split condition for kill bilbo.
-		// Split if health is 0 during gameplay
-		if(settings["killbilbo"] && current.health == 0 && current.runLevel && !current.loadScreen) return true;
-	}
-
+	// Only need different final split condition for kill bilbo.
+	// Split if health is 0 during gameplay
+	if(timer.Run.CategoryName == "Kill Bilbo" && current.health == 0 && current.runLevel && !current.loadScreen) return true;
 	// Split conditions for menu glitches, since its the only category that skips around.
 	// We put all conditions out here and even the final condition because of how unique it is.
-	if(settings["mg"] && timer.CurrentSplitIndex > 0) 
+	else if(timer.Run.CategoryName == "Major Glitches" && timer.CurrentSplitIndex > 0) 
 	{
 		if (current.levelID == 4) return true;
 		else if(current.levelID == 8) return true;
 		// Split if playing the storybook cinema for The Clouds Burst, which is necessary for major glitches.
 		else if(current.levelID > 11 && current.oolState == 17) return true;
 	}
+	// If full game run, we need to check for those split conditions.
 	else
 	{
+		// End of run check first. If not, check for other levels.		
+		if (current.levelID > 10 && current.onCinema && current.cinemaID == 0x3853B400)
+    	{
+			if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
+			else vars.levelSplitID = -1; 
+    	    return true;
+		}
+		
 		// Normal split condition for everything else thats a full game run and ILs/Segments
 		if (current.oolState == 19 && current.levelID > vars.levelSplitID)
     	{
@@ -276,13 +228,13 @@ reset
 	if(timer.CurrentPhase != TimerPhase.Running) return false;
 
 	// If doing menu glitches and we have menus open, dont reset when we go back to the main menu.
-	if(settings["mg"] && current.menusOpen > 1) return false;
+	if(timer.Run.CategoryName == "Major Glitches" && current.menusOpen > 1) return false;
 
 	// If we load a save and it's not for the current level we are on, reset.
 	if(current.levelQueued != -1 && current.levelQueued != vars.levelSplitID) return true;
 
 	// IL and segment reset conditions
-	if(vars.timerState == 1)
+	if(settings["ilseg"])
 	{
 		if(current.levelID == vars.levelStartID)
 		{
@@ -315,7 +267,7 @@ exit
 	if(settings["resets"]) vars.crashed = true;
 
 	// Crash% display time as checkbox since split action doesn't run after the game has crashed. Most likely inaccurate, but better than nothing I guess?
-	if(vars.timerState == 2 && settings["crash%"] && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show(
+	if(timer.Run.CategoryName.IndexOf("crash", StringComparison.OrdinalIgnoreCase) > -1 && timer.CurrentPhase == TimerPhase.Running) MessageBox.Show(
 		"Crash% Time Recorded at " + ((TimeSpan)timer.CurrentTime.GameTime).ToString(@"mm\:ss\.fff") + 
 		"\nMay not be accurate due to limitations.", 
 		vars.messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
