@@ -9,6 +9,8 @@
 state("meridian")
 {
 	// Not sure what runLevel is exactly, but needed for kill bilbo (need to ask md_pi)
+	float stamina : 0x35BA3C, 0xA04;
+	float longjumpCount : 0x35C050;
 	bool runLevel : 0x360354;
 	bool onCinema : 0x35CCE4;
 	int cinemaID : 0x35CD00;
@@ -232,6 +234,12 @@ reset
 
 	// If we load a save and it's not for the current level we are on, reset.
 	if(current.levelQueued != -1 && current.levelQueued != vars.levelSplitID) return true;
+
+	// Check if attack is used while running NJA.
+	if(current.stamina < 10 && current.stamina > 0 && timer.Run.CategoryName == "No Jump-Attacks") return true;
+
+	// Check if long-jump used while running NLJ.
+	if(current.longjumpCount > 0 && timer.Run.CategoryName == "No Long-Jumps") return true;
 
 	// IL and segment reset conditions
 	if(settings["ilseg"])
