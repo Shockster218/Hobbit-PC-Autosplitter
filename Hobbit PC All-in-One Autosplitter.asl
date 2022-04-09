@@ -47,8 +47,8 @@ startup
 	settings.Add("tcb", false, " The Clouds Burst", "ilseg");
 
 	settings.Add("extraHeader", false, "                    ------------- Extra Settings -------------");
-	settings.Add("signs", true, " Automatically Reset Riddles in the Dark Minecart Signs");
-	settings.Add("resets", true, " Automatically Disable Resets When the Game Crashes");
+	settings.Add("signs", false, " Automatically Reset Riddles in the Dark Minecart Signs (Experimental)");
+	settings.Add("resets", false, " Automatically Disable Resets When the Game Crashes");
 	settings.Add("race", false, " Race Mode timer fix for NMG (If using racetime.gg)");
 
 	refreshRate = 30;
@@ -76,11 +76,8 @@ init
 	// All common reset actions are done here to avoid redundancy
 	vars.resetAction = (Action)(() => 
 	{
-		if (vars.levelSplitID > 4 && settings["signs"])
-		{
-			// Set Switches back to normal. for 1.3 only
-			memory.WriteBytes((System.IntPtr)(0x75B548), new byte[] {0x01,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0,0,0,0,0});
-		}	
+		// Set Switches back to normal.
+		if (settings["signs"]) memory.WriteBytes((System.IntPtr)(0x75B548), new byte[] {0x01,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0,0,0,0,0});
 		vars.levelSplitID = vars.levelStartID; 
 	});
 
