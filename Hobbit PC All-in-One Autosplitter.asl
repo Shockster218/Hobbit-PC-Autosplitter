@@ -118,19 +118,18 @@ update
 	if(current.oolState == 6 && !vars.mainMenuReached) vars.mainMenuReached = true;
 	if(settings["ilseg"])
 	{	
-		if(settings["tcb"]) vars.levelStartID = 11;
-		if(settings["gotc"]) vars.levelStartID = 10;
-		if(settings["ii"]) vars.levelStartID = 9;
-		if(settings["aww"]) vars.levelStartID = 8;
-		if(settings["boob"]) vars.levelStartID = 7;
-		if(settings["fas"]) vars.levelStartID = 6;
-		if(settings["ritd"]) vars.levelStartID = 5;
-		if(settings["oh"]) vars.levelStartID = 4;
-		if(settings["th"]) vars.levelStartID = 3;
-		if(settings["rm"]) vars.levelStartID = 2;
-		if(settings["aup"]) vars.levelStartID = 1;
 		if(settings["dw"]) vars.levelStartID = 0;
-		else vars.levelStartID = -1;
+		else if(settings["aup"]) vars.levelStartID = 1;
+		else if(settings["rm"]) vars.levelStartID = 2;
+		else if(settings["th"]) vars.levelStartID = 3;
+		else if(settings["oh"]) vars.levelStartID = 4;
+		else if(settings["ritd"]) vars.levelStartID = 5;
+		else if(settings["fas"]) vars.levelStartID = 6;
+		else if(settings["boob"]) vars.levelStartID = 7;
+		else if(settings["aww"]) vars.levelStartID = 8;
+		else if(settings["ii"]) vars.levelStartID = 9;
+		else if(settings["gotc"]) vars.levelStartID = 10;
+		else if(settings["tcb"]) vars.levelStartID = 11;
 	}
 	else vars.levelStartID = -1;
 }
