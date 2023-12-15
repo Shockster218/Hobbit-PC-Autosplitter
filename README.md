@@ -2,7 +2,7 @@
 An Autosplitter for The Hobbit PC (2003) on patch 1.3<br></br>
 ASL originally made by MD_PI, revamped by Shockster_ as an all-in-one autosplitter!
 
-<h2> For All Quests Usage with Summary</h2>
+<h2> For All Quests Usage with Summary Component</h2>
 1. Deactivate the autosplitter you're currently using. </br>
 2. Right click livesplit and find "Edit Layout". Click the plus button along the left and add a "Scriptable Auto Splitter" component. </br>
 3. Double click the newly added component in the list, click "Browse" at the top, then locate the PC All-In-One Autosplitter (where ever you downloaded it, doesn't matter where it is). </br>
