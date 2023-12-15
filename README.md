@@ -9,6 +9,6 @@ ASL originally made by MD_PI, revamped by Shockster_ as an all-in-one autosplitt
 4. Make sure "Start", "Split", and "Reset" aren't grayed out and make sure they're checked. </br>
 5. Lastly, check the option "Automatically Disable Resets When the Game Crashes". </br>
 6. Close all the windows until your back to the main window of Livesplit. Right click livesplit and click "Edit Splits" </br>
-7. Make sure the category is set to "All-Quests". This is EXTREMELY important and will not work if you don't have this set!. </br>
+7. Make sure the category is set to "All-Quests". This is EXTREMELY important and will not work if you don't have this set! </br>
 
 <h3>If you have any questions or if something is broken please contact me!</h3>
