@@ -137,7 +137,7 @@ update
 start
 {
 	// If timer is running or not at main menu, we don't need to check for start conditions.
-	if(timer.CurrentPhase != TimerPhase.NotRunning || !vars.mainMenuReached) return false;
+	if(timer.CurrentPhase != TimerPhase.NotRunning && !vars.mainMenuReached && !settings["ilseg"]) return false;
 
 	// IL and Segment runs start conditions.
 	if(settings["ilseg"])
@@ -220,7 +220,7 @@ reset
 	if(vars.crashed) return false;
 
 	// Otherwise if we didn't crash during that, reset the timer on game start. Still resets for crash%(since no split happens anyway), might change.
-	if(!vars.mainMenuReached && timer.CurrentPhase == TimerPhase.Running) return true;
+	if(!vars.mainMenuReached && timer.CurrentPhase == TimerPhase.Running && !settings["ilseg"]) return true;
 
 	// If the timer isn't started, then we don't need to check for reset conditions.
 	if(timer.CurrentPhase != TimerPhase.Running) return false;
