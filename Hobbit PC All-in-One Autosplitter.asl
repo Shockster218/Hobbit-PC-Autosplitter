@@ -54,6 +54,7 @@ startup
 	refreshRate = 30;
 	vars.levelSplitID = -1;
 	vars.levelStartID = -1;
+	vars.resetSigns = false;
 
 	vars.crashed = false;
 	vars.noStartLevelMB = false;
@@ -77,7 +78,12 @@ init
 	vars.resetAction = (Action)(() => 
 	{
 		// Set Switches back to normal.
-		if (settings["signs"]) memory.WriteBytes((System.IntPtr)(0x75B548), new byte[] {0x01,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0,0,0,0,0});
+		if (settings["signs"] && vars.resetSigns) 
+		{
+			memory.WriteBytes((System.IntPtr)(0x75B548), new byte[] {0x01,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0,0,0,0,0});
+			vars.resetSigns = false;
+		}
+		
 		vars.levelSplitID = vars.levelStartID; 
 	});
 
@@ -181,6 +187,9 @@ split
 {
 	// If timer isn't running, we don't need to check split conditions.
 	if(timer.CurrentPhase != TimerPhase.Running) return false;
+	
+	// Reset Sign check to see if Riddles was Reached
+	if(current.levelID == 5) vars.resetSigns = true;
 
 	// Only need different final split condition for kill bilbo.
 	// Split if health is 0 during gameplay
@@ -229,6 +238,8 @@ reset
 	if(timer.Run.CategoryName == "Major Glitches" && current.menusOpen > 1) return false;
 
 	// If we load a save and it's not for the current level we are on, reset.
+	// This was mainly for the annoying situations where you were on a level like AUP and accidentally loaded a practice save on inside info and your timer would spam split until inside info.
+	// I don't see a logical reason to load a save on a level other than the one your currently on for any reason unless by mistake, so I think this is fine?
 	if(current.levelQueued != -1 && current.levelQueued != vars.levelSplitID) return true;
 
 	// Check if attack is used while running NJA.
