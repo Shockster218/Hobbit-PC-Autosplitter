@@ -51,7 +51,7 @@ startup
 	settings.Add("resets", false, " Automatically Disable Resets When the Game Crashes");
 	settings.Add("race", false, " Race Mode timer fix for NMG (If using racetime.gg)");
 
-	refreshRate = 30;
+	refreshRate = 120;
 	vars.levelSplitID = -1;
 	vars.levelStartID = -1;
 	vars.resetSigns = false;
