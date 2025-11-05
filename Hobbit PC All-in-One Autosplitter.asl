@@ -49,6 +49,7 @@ startup
 	settings.Add("extraHeader", false, "                    ------------- Extra Settings -------------");
 	settings.Add("signs", false, " Automatically Reset Riddles in the Dark Minecart Signs (Experimental)");
 	settings.Add("resets", false, " Automatically Disable Resets When the Game Crashes");
+	settings.Add("race", false, " Race Mode timer fix for NMG (If using racetime.gg)");
 
 	refreshRate = 120;
 	vars.levelSplitID = -1;
@@ -90,7 +91,10 @@ init
 	vars.startAction = (Action)(() => 
 	{	
 		if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
-		else 			vars.levelSplitID = 0;
+		else
+		{
+			vars.levelSplitID = 0;
+		}
 		vars.noStartLevelMB = false; 
 	});
 
@@ -205,10 +209,7 @@ split
 		if (current.levelID > 10 && current.onCinema && current.cinemaID == 0x3853B400)
     	{
 			if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
-			else
-			{
-				vars.levelSplitID = -1; 
-			}
+			else vars.levelSplitID = -1; 
     	    return true;
 		}
 		
