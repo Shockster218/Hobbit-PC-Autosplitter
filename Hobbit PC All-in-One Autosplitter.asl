@@ -90,10 +90,7 @@ init
 	vars.startAction = (Action)(() => 
 	{	
 		if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
-		else
-		{
-			vars.levelSplitID = 0;
-		}
+		else 			vars.levelSplitID = 0;
 		vars.noStartLevelMB = false; 
 	});
 
@@ -208,7 +205,10 @@ split
 		if (current.levelID > 10 && current.onCinema && current.cinemaID == 0x3853B400)
     	{
 			if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
-			else vars.levelSplitID = -1; 
+			else
+			{
+				vars.levelSplitID = -1; 
+			}
     	    return true;
 		}
 		
