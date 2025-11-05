@@ -92,7 +92,7 @@ init
 		if(settings["ilseg"]) vars.levelSplitID = vars.levelStartID;
 		else
 		{
-			else vars.levelSplitID = 0;
+			vars.levelSplitID = 0;
 		}
 		vars.noStartLevelMB = false; 
 	});
